@@ -1,0 +1,46 @@
+# Debian Bookworm Beispiel für NXP S32G2
+# Debian Bookworm example for NXP S32G2
+
+architecture: arm64
+
+distribution:
+  name: debian
+  release: bookworm
+  mirror: http://deb.debian.org/debian
+
+hostname: s32g2-debian
+
+root_password: debian
+
+packages:
+  # Basis-System
+  - systemd
+  - udev
+  - kmod
+  - network-manager
+  - openssh-server
+  - sudo
+  - vim
+  
+  # Netzwerk
+  - net-tools
+  - iputils-ping
+  - wget
+  - curl
+  
+  # Hardware-Tools
+  - can-utils
+  - i2c-tools
+  
+  # Debugging
+  - strace
+  - gdb
+
+kernel:
+  source: package
+  package: linux-image-arm64
+
+output:
+  name: s32g2-debian-image
+  format: tar.gz
+  compression: true

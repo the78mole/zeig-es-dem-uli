@@ -1,0 +1,33 @@
+# Build artifacts
+build/
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.ext4
+*.img
+*.squashfs
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Temporary files
+*.swp
+*.swo
+*~
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# Logs
+*.log
