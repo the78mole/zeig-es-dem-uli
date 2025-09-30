@@ -1,0 +1,24 @@
+# Test-Konfiguration für Dev-Container (AMD64)
+# Test configuration for dev container (AMD64)
+
+architecture: amd64
+
+distribution:
+  name: ubuntu
+  release: jammy
+  mirror: http://archive.ubuntu.com/ubuntu
+
+hostname: container-test
+
+root_password: test
+
+packages:
+  - systemd
+  - udev
+  - network-manager
+  - openssh-server
+
+output:
+  name: container-test-image
+  format: tar.gz
+  compression: true

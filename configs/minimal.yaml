@@ -1,0 +1,24 @@
+# Minimale Konfiguration für schnelle Tests
+# Minimal configuration for quick testing
+
+architecture: arm64
+
+distribution:
+  name: ubuntu
+  release: jammy
+  mirror: http://ports.ubuntu.com/ubuntu-ports
+
+hostname: minimal-target
+
+root_password: root
+
+packages:
+  - systemd
+  - udev
+  - network-manager
+  - openssh-server
+
+output:
+  name: minimal-image
+  format: tar.gz
+  compression: true

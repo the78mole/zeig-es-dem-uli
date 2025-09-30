@@ -1,0 +1,98 @@
+# Beispiel-Konfiguration für NXP S32G2 Target
+# Example configuration for NXP S32G2 target
+
+# Target-Architektur
+architecture: arm64
+
+# Base Distribution
+distribution:
+  name: ubuntu
+  release: jammy  # Ubuntu 22.04 LTS
+  mirror: http://ports.ubuntu.com/ubuntu-ports
+
+# Hostname
+hostname: s32g2-target
+
+# Root-Passwort (wird gehasht)
+root_password: s32g2
+
+# Zu installierende Pakete
+packages:
+  # Basis-System
+  - systemd
+  - udev
+  - kmod
+  - network-manager
+  - openssh-server
+  - sudo
+  - vim
+  - nano
+  
+  # Netzwerk-Tools
+  - net-tools
+  - iputils-ping
+  - wget
+  - curl
+  
+  # Entwicklungs-Tools (optional)
+  - build-essential
+  - git
+  - python3
+  - python3-pip
+  
+  # Hardware-spezifische Pakete
+  - can-utils
+  - i2c-tools
+
+# Kernel-Optionen
+kernel:
+  # Option: custom oder package
+  source: package
+  # Bei source: package
+  package: linux-image-generic
+  # Bei source: custom könnte man einen Pfad zu einem Kernel angeben
+  # custom_path: /path/to/kernel/Image
+
+# Bootloader
+bootloader:
+  type: u-boot
+  # Plattform-spezifische U-Boot-Konfiguration
+  defconfig: s32g2xxaevb_defconfig
+
+# Partitionierung
+partitions:
+  boot:
+    size: 256M
+    filesystem: vfat
+    mountpoint: /boot
+  root:
+    size: 2G
+    filesystem: ext4
+    mountpoint: /
+
+# Netzwerk-Konfiguration
+network:
+  interfaces:
+    eth0:
+      method: dhcp
+    can0:
+      enabled: true
+      bitrate: 500000
+
+# Zusätzliche Dateien/Skripte
+customization:
+  # Post-Installation-Skripte
+  post_install_scripts:
+    - scripts/setup-can.sh
+    - scripts/configure-network.sh
+  
+  # Zusätzliche Dateien kopieren
+  overlay_files:
+    - src: overlays/s32g2/
+      dest: /
+
+# Image-Ausgabe
+output:
+  name: s32g2-ubuntu-image
+  format: tar.gz  # tar.gz, ext4, squashfs
+  compression: true
