@@ -117,7 +117,8 @@ check_prerequisites() {
     # Prüfe Python-Module
     if ! python3 -c "import yaml" 2>/dev/null; then
         log_error "Python-Modul 'yaml' fehlt"
-        log_info "Installation mit: pip3 install pyyaml"
+        log_info "Installation mit: sudo pip3 install pyyaml"
+        log_info "Oder verwende: ./quickstart.sh für automatische Installation"
         return 1
     fi
     

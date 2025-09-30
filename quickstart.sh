@@ -84,11 +84,17 @@ install_python_deps() {
     echo
     echo -e "${GREEN}[2/4] Installiere Python-Abhängigkeiten...${NC}"
     
+    # Prüfe ob PyYAML bereits installiert ist
+    if python3 -c "import yaml" 2>/dev/null; then
+        echo "  - PyYAML bereits installiert ✓"
+        return 0
+    fi
+    
     if [ -f requirements.txt ]; then
-        pip3 install -r requirements.txt --user -q
+        $SUDO pip3 install -r requirements.txt -q
         echo "  - PyYAML installiert ✓"
     else
-        pip3 install PyYAML --user -q
+        $SUDO pip3 install PyYAML -q
         echo "  - PyYAML installiert ✓"
     fi
 }
@@ -115,29 +121,33 @@ offer_test_build() {
     echo "Möchtest du einen Test-Build durchführen?"
     echo
     echo "Verfügbare Konfigurationen:"
-    echo "  1) Minimal (empfohlen für Test, ~5-10 Min, ~200 MB)"
-    echo "  2) NXP S32G2 Ubuntu (vollständig, ~30-45 Min, ~800 MB)"
-    echo "  3) NXP S32G2 Debian (vollständig, ~30-45 Min, ~800 MB)"
-    echo "  4) Raspberry Pi 4 (vollständig, ~30-45 Min, ~800 MB)"
-    echo "  5) Überspringen"
+    echo "  1) Container Test (AMD64, funktioniert in Dev-Container, ~5-10 Min, ~200 MB)"
+    echo "  2) Minimal ARM64 (kann in Dev-Container fehlschlagen, ~5-10 Min, ~200 MB)"
+    echo "  3) NXP S32G2 Ubuntu (kann in Dev-Container fehlschlagen, ~30-45 Min, ~800 MB)"
+    echo "  4) NXP S32G2 Debian (kann in Dev-Container fehlschlagen, ~30-45 Min, ~800 MB)"
+    echo "  5) Raspberry Pi 4 (kann in Dev-Container fehlschlagen, ~30-45 Min, ~800 MB)"
+    echo "  6) Überspringen"
     echo
     
-    read -p "Auswahl (1-5): " choice
+    read -p "Auswahl (1-6): " choice
     
     case $choice in
         1)
-            config="configs/minimal.yaml"
+            config="configs/container-test.yaml"
             ;;
         2)
-            config="configs/s32g2-example.yaml"
+            config="configs/minimal.yaml"
             ;;
         3)
-            config="configs/s32g2-debian.yaml"
+            config="configs/s32g2-example.yaml"
             ;;
         4)
-            config="configs/raspberry-pi4.yaml"
+            config="configs/s32g2-debian.yaml"
             ;;
         5)
+            config="configs/raspberry-pi4.yaml"
+            ;;
+        6)
             echo
             echo -e "${BLUE}Setup abgeschlossen!${NC}"
             echo
@@ -155,18 +165,38 @@ offer_test_build() {
     echo -e "${YELLOW}Dies kann einige Minuten dauern...${NC}"
     echo
     
-    # Build starten
-    $SUDO ./scripts/build.sh -c "$config"
+    # Prüfe zuerst mit Dry-Run
+    echo -e "${YELLOW}Prüfe Konfiguration...${NC}"
+    if ! ./scripts/build.sh -c "$config" --dry-run; then
+        echo -e "${RED}Konfiguration ungültig!${NC}"
+        return 1
+    fi
     
-    if [ $? -eq 0 ]; then
+    # Build starten
+    echo -e "${YELLOW}Starte Build-Prozess...${NC}"
+    if $SUDO ./scripts/build.sh -c "$config"; then
         echo
         echo -e "${GREEN}Build erfolgreich!${NC}"
         echo
         echo "Das fertige Image findest du im 'build/' Verzeichnis:"
-        ls -lh build/
+        if [ -d build/ ] && [ "$(ls -A build/ 2>/dev/null)" ]; then
+            ls -lh build/
+        else
+            echo -e "${RED}Fehler: Build-Verzeichnis ist leer oder nicht vorhanden!${NC}"
+            echo -e "${YELLOW}Der Build ist wahrscheinlich fehlgeschlagen.${NC}"
+            return 1
+        fi
     else
         echo
         echo -e "${RED}Build fehlgeschlagen. Siehe Logs für Details.${NC}"
+        echo
+        echo -e "${YELLOW}Tipps zur Fehlerbehebung:${NC}"
+        echo "  - In Dev-Container-Umgebungen funktioniert Cross-Arch-Compilation oft nicht"
+        echo "  - Versuche eine AMD64-Konfiguration oder baue auf dem Zielsystem"
+        echo "  - Prüfe die Netzwerkverbindung"
+        echo "  - Stelle sicher, dass genügend Speicherplatz vorhanden ist"
+        echo "  - Führe den Build mit --keep-temp aus für Debugging"
+        echo "  - Schaue in die Logs für spezifische Fehlermeldungen"
         return 1
     fi
 }
