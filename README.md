@@ -14,11 +14,19 @@ Dieses SDK ermöglicht es, schnell und einfach Embedded Linux Images zu erstelle
 
 ## Schnellstart
 
-### Voraussetzungen installieren
+### Option 1: Automatisches Setup (Empfohlen)
+
+```bash
+# Führt automatische Installation und optionalen Test-Build durch
+./quickstart.sh
+```
+
+### Option 2: Manuelle Installation
 
 ```bash
 sudo apt-get update
 sudo apt-get install -y debootstrap qemu-user-static python3 python3-pip python3-yaml
+pip3 install -r requirements.txt
 ```
 
 ### Image erstellen
